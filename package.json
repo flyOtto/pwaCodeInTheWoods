@@ -43,5 +43,12 @@
   },
   "eslintConfig": {
     "extends": "google"
+  },
+  "dependencies": {
+    "@material/button": "^0.7.0",
+    "@material/card": "^0.2.9",
+    "@material/list": "^0.2.19",
+    "@material/toolbar": "^0.4.10",
+    "@material/typography": "^0.3.0"
   }
 }
