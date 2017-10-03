@@ -20,6 +20,7 @@
     "gulp-imagemin": "^2.4.0",
     "gulp-load-plugins": "^1.2.4",
     "gulp-newer": "^1.2.0",
+    "gulp-rename": "^1.2.2",
     "gulp-sass": "^2.3.2",
     "gulp-size": "^2.1.0",
     "gulp-sourcemaps": "^1.6.0",
@@ -30,7 +31,8 @@
     "sw-precache": "^3.2.0",
     "sw-toolbox": "^3.2.1",
     "webpack": "^3.6.0",
-    "webpack-stream": "^4.0.0"
+    "webpack-stream": "^4.0.0",
+    "workbox-build": "^2.0.3"
   },
   "engines": {
     "node": ">=0.12"

@@ -29,12 +29,12 @@ import gulp from 'gulp';
 import del from 'del';
 import runSequence from 'run-sequence';
 import browserSync from 'browser-sync';
-import swPrecache from 'sw-precache';
 import gulpLoadPlugins from 'gulp-load-plugins';
 import {output as pagespeed} from 'psi';
 import pkg from './package.json';
 import webpack from 'webpack';
 import webpackStream from 'webpack-stream';
+import workboxBuild from 'workbox-build';
 
 const $ = gulpLoadPlugins();
 const reload = browserSync.reload;
@@ -190,7 +190,7 @@ gulp.task('serve', ['scripts', 'styles'], () => {
     // Note: this uses an unsigned certificate which on first access
     //       will present a certificate warning in the browser.
     // https: true,
-    server: ['.tmp', 'app'],
+    server: ['.tmp', 'app', '.dist'],
     port: 3000
   });
 
@@ -238,9 +238,10 @@ gulp.task('pagespeed', cb =>
 );
 
 // Copy over the scripts that are used in importScripts as part of the generate-service-worker task.
-gulp.task('copy-sw-scripts', () => {
-  return gulp.src(['node_modules/sw-toolbox/sw-toolbox.js', 'app/scripts/sw/runtime-caching.js'])
-    .pipe(gulp.dest('dist/scripts/sw'));
+gulp.task('copy-workbox', () => {
+  return gulp.src(['node_modules/workbox-sw/build/modules/workbox-sw.prod.v2.0.3.mjs'])
+    .pipe($.rename('workbox.js'))
+    .pipe(gulp.dest('dist/scripts/service-worker'));
 });
 
 // See http://www.html5rocks.com/en/tutorials/service-worker/introduction/ for
@@ -248,29 +249,21 @@ gulp.task('copy-sw-scripts', () => {
 // Generate a service worker file that will provide offline functionality for
 // local resources. This should only be done for the 'dist' directory, to allow
 // live reload to work as expected when serving from the 'app' directory.
-gulp.task('generate-service-worker', ['copy-sw-scripts'], () => {
-  const rootDir = 'dist';
-  const filepath = path.join(rootDir, 'service-worker.js');
+gulp.task('generate-service-worker', ['copy-workbox'], () => {
 
-  return swPrecache.write(filepath, {
-    // Used to avoid cache conflicts when serving on localhost.
-    cacheId: pkg.name || 'web-starter-kit',
-    // sw-toolbox.js needs to be listed first. It sets up methods used in runtime-caching.js.
-    importScripts: [
-      'scripts/sw/sw-toolbox.js',
-      'scripts/sw/runtime-caching.js'
-    ],
-    staticFileGlobs: [
-      // Add/remove glob patterns to match your directory setup.
-      `${rootDir}/images/**/*`,
-      `${rootDir}/scripts/**/*.js`,
-      `${rootDir}/styles/**/*.css`,
-      `${rootDir}/*.{html,json}`
-    ],
-    // Translates a static file path to the relative URL that it's served from.
-    // This is '/' rather than path.sep because the paths returned from
-    // glob always use '/'.
-    stripPrefix: rootDir + '/'
+  // Note: We use a partial manifest where we inject the built files.
+  return workboxBuild.injectManifest({
+    globDirectory: './dist/',
+    globPatterns: ['**\/*.{html,js,css,png,jpg,gif}'],
+    globIgnores: ['admin.html'],
+    swSrc: './app/service-worker.js',
+    swDest: './dist/service-worker.js'
+  })
+  .then(() => {
+    console.log('Service worker generated.');
+  })
+  .catch((err) => {
+    console.log('[ERROR] This happened: ' + err);
   });
 });
 
