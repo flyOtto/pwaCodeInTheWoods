@@ -111,7 +111,7 @@ gulp.task('scripts', () => {
     cache: true,
     entry: {
       // Use entry name as the output file name to gulp pick up the file name
-      main: './app/scripts/main.js',
+      main: ['babel-polyfill', './app/scripts/main.js'],
     },
     output: {
       filename: '[name].js',
@@ -127,20 +127,17 @@ gulp.task('scripts', () => {
           exclude: [
             /node_modules\/proptypes|scripts\/sw.js/
           ],
-          options: {
-            presets: [['es2015']],
-          }
         }
       ]
     },
     plugins: [
-      new webpack.optimize.AggressiveMergingPlugin(),
+      /*new webpack.optimize.AggressiveMergingPlugin(),
       new webpack.optimize.UglifyJsPlugin({
         compress: {warnings: false},
         comments: false,
         sourceMap: true,
         minimize: true
-      })
+      })*/
     ]
   };
 
@@ -191,7 +188,7 @@ gulp.task('serve', ['scripts', 'styles'], () => {
     // Note: this uses an unsigned certificate which on first access
     //       will present a certificate warning in the browser.
     // https: true,
-    server: ['.tmp', 'app', '.dist'],
+    server: ['.tmp', 'app', 'dist'],
     port: 3000
   });
 
@@ -240,7 +237,7 @@ gulp.task('pagespeed', cb =>
 
 // Copy over the scripts that are used in importScripts as part of the generate-service-worker task.
 gulp.task('copy-workbox', () => {
-  return gulp.src(['node_modules/workbox-sw/build/modules/workbox-sw.prod.v2.0.3.mjs'])
+  return gulp.src(['node_modules/workbox-sw/build/importScripts/workbox-sw.prod.v2.0.3.js'])
     .pipe($.rename('workbox.js'))
     .pipe(gulp.dest('dist/scripts/service-worker'));
 });

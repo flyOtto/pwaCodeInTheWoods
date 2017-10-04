@@ -4,7 +4,10 @@
     "apache-server-configs": "^2.14.0",
     "babel-core": "^6.14.0",
     "babel-loader": "^7.1.2",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.6.0",
+    "babel-preset-latest": "^6.24.1",
     "browser-sync": "^2.14.0",
     "del": "^2.2.2",
     "eslint-config-google": "^0.3.0",
@@ -48,7 +51,7 @@
     "@material/button": "^0.7.0",
     "@material/card": "^0.2.9",
     "@material/list": "^0.2.19",
-    "@material/toolbar": "^0.4.10",
+    "@material/toolbar": "^0.4.11",
     "@material/typography": "^0.3.0"
   }
 }
