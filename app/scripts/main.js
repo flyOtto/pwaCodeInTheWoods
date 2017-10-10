@@ -2,6 +2,7 @@
 
 import {MDCToolbar} from '@material/toolbar';
 import ChannelGuide from './views/ChannelGuide';
+import config from '../../config.json';
 import CryptoJS from 'crypto-js';
 import fetchp from 'fetch-jsonp';
 import Player from './views/Player';
@@ -16,8 +17,8 @@ import Toolbar from './views/Toolbar';
 async function fetchCurrentPrograms(services = []) {
   const url = new URL(`${baseUrl}/programs/schedules/now.json`);
   const params = url.searchParams;
-  params.set('app_id', appId);
-  params.set('app_key', appKey);
+  params.set('app_id', config.appId);
+  params.set('app_key', config.appKey);
   params.set('service', services.join(','));
   params.set('start', '-1');
   params.set('end', '10');
@@ -40,8 +41,8 @@ async function fetchCurrentPrograms(services = []) {
 async function fetchServices(type = 'TVChannel') {
   const url = new URL(`${baseUrl}/programs/services.json`);
   const params = url.searchParams;
-  params.set('app_id', appId);
-  params.set('app_key', appKey);
+  params.set('app_id', config.appId);
+  params.set('app_key', config.appKey);
   params.set('type', type);
 
   // Fix the jsonp callback function name for service worker compatibility
@@ -67,8 +68,8 @@ async function fetchServices(type = 'TVChannel') {
 async function fetchStream(programId, mediaId) {
   const url = new URL(`${baseUrl}/media/playouts.json`);
   const params = url.searchParams;
-  params.set('app_id', appId);
-  params.set('app_key', appKey);
+  params.set('app_id', config.appId);
+  params.set('app_key', config.appKey);
   params.set('program_id', programId);
   params.set('media_id', mediaId);
   params.set('protocol', 'HLS');
@@ -206,7 +207,7 @@ async function handleRouteChange() {
       const mediaId = segments[2];
       const program = programs.find((p) => p.contentId === contentId);
       const stream = await fetchStream(contentId, mediaId);
-      const url = decrypt(stream.url, secret);
+      const url = decrypt(stream.url, config.secret);
 
       player.url = url;
       player.program = program;
@@ -245,9 +246,6 @@ const main = document.querySelector('main');
 
 // API configuration
 const baseUrl = 'https://external.api.yle.fi/v1';
-const appId = 'YOUR_APP_ID';
-const appKey = 'YOUR_APP_KEY';
-const secret = 'YOUR_APP_SECRET';
 
 // Application state data
 let channels = [];
