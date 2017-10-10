@@ -36,13 +36,38 @@ const cacheOneWeekStrategy = workboxSW.strategies.cacheFirst({
   },
 });
 
+// Cache APIs in case they cannot be accessed online
+const cacheFallbackStrategy = workboxSW.strategies.cacheFirst({
+  cacheName: 'api-cache',
+  cacheExpiration: {
+    maxEntries: 20,
+    maxAgeSeconds: 60 * 60, // one hour
+  },
+  cacheableResponse: {
+    statuses: [0, 200],
+  },
+});
+
 // Cache external fonts, including the fonts from Google CDN
 workboxSW.router.registerRoute(
-  'https://fonts.googleapis.com/(.*)',
+  'https://fonts.googleapis.com/css(.*)',
   cacheOneWeekStrategy
 );
-
 workboxSW.router.registerRoute(
   'https://fonts.gstatic.com/(.*)',
   cacheOneWeekStrategy
 );
+
+// Cache YLE API images
+workboxSW.router.registerRoute(
+  'http://images.cdn.yle.fi/image/upload/(.*)',
+  cacheOneWeekStrategy
+);
+
+// Cache YLE API requests for rudimentary offline usage
+ workboxSW.router.registerRoute(
+  'https://external.api.yle.fi/v1/(.*)',
+  cacheOneWeekStrategy
+);
+
+console.log('Service Worker generated alright');

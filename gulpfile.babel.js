@@ -3,14 +3,14 @@
  *  Web Starter Kit
  *  Copyright 2015 Google Inc. All rights reserved.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  Licensed under the Apache License, Version 2.0 (the 'License');
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
  *      https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  distributed under the License is distributed on an 'AS IS' BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License
@@ -180,7 +180,7 @@ gulp.task('serve', ['scripts', 'styles'], () => {
     // Customize the Browsersync console logging prefix
     logPrefix: 'WSK',
     // Allow scroll syncing across breakpoints
-    scrollElementMapping: ['main', '.mdl-layout'],
+    scrollElementMapping: ['main'],
     // Run as an https by uncommenting 'https: true'
     // Note: this uses an unsigned certificate which on first access
     //       will present a certificate warning in the browser.
@@ -201,7 +201,7 @@ gulp.task('serve:dist', ['default'], () =>
     notify: false,
     logPrefix: 'WSK',
     // Allow scroll syncing across breakpoints
-    scrollElementMapping: ['main', '.mdl-layout'],
+    scrollElementMapping: ['main'],
     // Run as an https by uncommenting 'https: true'
     // Note: this uses an unsigned certificate which on first access
     //       will present a certificate warning in the browser.
@@ -232,11 +232,15 @@ gulp.task('pagespeed', (cb) =>
   }, cb)
 );
 
-// Copy over the scripts that are used in importScripts as part of the generate-service-worker task.
+// Copy the workbox script and the prefetching module
 gulp.task('copy-workbox', () => {
-  return gulp.src(['node_modules/workbox-sw/build/importScripts/workbox-sw.prod.v2.0.3.js'])
-    .pipe($.rename('workbox.js'))
-    .pipe(gulp.dest('dist/scripts/service-worker'));
+  return gulp.src([
+    'node_modules/workbox-sw/build/importScripts/workbox-sw.prod.v2.0.3.js',
+    'node_modules/workbox-runtime-caching/build/importScripts/workbox-runtime-caching.prod.v2.0.3.js',
+  ])
+  .pipe($.if(/workbox-sw/, $.rename('workbox.js')))
+  .pipe($.if(/workbox-runtime-caching/, $.rename('workbox-runtime-caching.js')))
+  .pipe(gulp.dest('dist/scripts/service-worker'));
 });
 
 // See http://www.html5rocks.com/en/tutorials/service-worker/introduction/ for
@@ -244,12 +248,12 @@ gulp.task('copy-workbox', () => {
 // Generate a service worker file that will provide offline functionality for
 // local resources. This should only be done for the 'dist' directory, to allow
 // live reload to work as expected when serving from the 'app' directory.
-gulp.task('generate-service-worker', ['copy-workbox'], () => {
+gulp.task('generate-service-worker', ['copy', 'copy-workbox'], () => {
   // Note: We use a partial manifest where we inject the built files.
   return workboxBuild.injectManifest({
     globDirectory: './dist/',
-    globPatterns: ['**\/*.{html,js,css,png,jpg,gif}'],
-    globIgnores: ['admin.html'],
+    globPatterns: ['**\/*'],
+    globIgnores: ['.htaccess', 'robots.txt', 'humans.txt'],
     swSrc: './app/service-worker.js',
     swDest: './dist/service-worker.js',
   })
