@@ -23,7 +23,6 @@
 // Babel handles this without us having to do anything. It just works.
 // You can read more about the new JavaScript features here:
 // https://babeljs.io/docs/learn-es2015/
-
 import {output as pagespeed} from 'psi';
 import BabelMinifyPlugin from 'babel-minify-webpack-plugin';
 import browserSync from 'browser-sync';
@@ -32,6 +31,8 @@ import gulp from 'gulp';
 import gulpLoadPlugins from 'gulp-load-plugins';
 import path from 'path';
 import pkg from './package.json';
+import polyfill from 'babel-polyfill';
+import pushHandler from './api/subscriptions';
 import runSequence from 'run-sequence';
 import webpack from 'webpack';
 import webpackStream from 'webpack-stream';
@@ -186,6 +187,15 @@ gulp.task('serve', ['scripts', 'styles'], () => {
     //       will present a certificate warning in the browser.
     // https: true,
     server: ['.tmp', 'app', 'dist'],
+    // https: true,
+    // Custom PUSH backend handler
+    middleware: [
+      require('body-parser').json(),
+      {
+        route: '/api/subscriptions',
+        handle: pushHandler,
+      },
+    ],
     port: 3000,
   });
 
@@ -207,6 +217,17 @@ gulp.task('serve:dist', ['default'], () =>
     //       will present a certificate warning in the browser.
     // https: true,
     server: 'dist',
+    // https: true,
+    // Custom PUSH backend handler
+    middleware: [
+      require('body-parser').json(),
+      {
+        route: '/api/subscriptions',
+        handle: pushHandler,
+      },
+    ],
+    /* key: './certs/192.168.1.101.key',
+    cert: './certs/192.168.1.101.crt',*/
     port: 3001,
   })
 );

@@ -4,3 +4,4 @@ dist/
 app.yaml
 
 config.json
+config.server.json

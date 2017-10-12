@@ -166,6 +166,20 @@ function decrypt(url, secret) {
 async function init() {
   console.log('Initialise the application');
 
+  // Register the service worker
+  // [::1] is the IPv6 localhost address; 127.0.0.1/8 is localhos
+  const isLocalhost = Boolean(window.location.hostname === 'localhost' ||
+        window.location.hostname === '[::1]' || window.location.hostname.match(
+        /^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/
+      )
+    );
+
+  if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || isLocalhost)) {
+    // Wait for Service Worker to register, then assign the handle
+    const swRegistration = await navigator.serviceWorker.register('service-worker.js');
+    guide.registerWorker(swRegistration);
+  }
+
   // Fetch the data
   await fetch();
 
@@ -219,23 +233,6 @@ async function handleRouteChange() {
   }
 }
 
-// Check to make sure service workers are supported in the current browser,
-// and that the current page is accessed from a secure origin. Using a
-// service worker from an insecure origin will trigger JS console errors. See
-// http://www.chromium.org/Home/chromium-security/prefer-secure-origins-for-powerful-new-features
-const isLocalhost = Boolean(window.location.hostname === 'localhost' ||
-    // [::1] is the IPv6 localhost address.
-    window.location.hostname === '[::1]' ||
-    // 127.0.0.1/8 is considered localhost for IPv4.
-    window.location.hostname.match(
-      /^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/
-    )
-  );
-
-if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || isLocalhost)) {
-  navigator.serviceWorker.register('service-worker.js');
-}
-
 // Attach dynamic behaviour to the MDC toolbar element
 const mdcToolbar = MDCToolbar.attachTo(document.querySelector('.mdc-toolbar'));
 mdcToolbar.fixedAdjustElement = document.querySelector('.mdc-toolbar-fixed-adjust');
@@ -250,6 +247,8 @@ const baseUrl = 'https://external.api.yle.fi/v1';
 // Application state data
 let channels = [];
 let programs = [];
+
+// UI Elements
 const toolbar = new Toolbar(header);
 const guide = new ChannelGuide(main);
 const player = new Player(main);

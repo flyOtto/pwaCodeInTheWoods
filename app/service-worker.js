@@ -37,7 +37,7 @@ const cacheOneWeekStrategy = workboxSW.strategies.cacheFirst({
 });
 
 // Cache APIs in case they cannot be accessed online
-const cacheFallbackStrategy = workboxSW.strategies.cacheFirst({
+const cacheFallbackStrategy = workboxSW.strategies.networkFirst({
   cacheName: 'api-cache',
   cacheExpiration: {
     maxEntries: 20,
@@ -67,7 +67,40 @@ workboxSW.router.registerRoute(
 // Cache YLE API requests for rudimentary offline usage
  workboxSW.router.registerRoute(
   'https://external.api.yle.fi/v1/(.*)',
-  cacheOneWeekStrategy
+  cacheFallbackStrategy
 );
 
 console.log('Service Worker generated alright');
+
+/**
+ * Add PUSH notification implementation
+ */
+self.addEventListener('push', function(event) {
+	let data = {};
+
+	try {
+		data = event.data.json();
+	} catch (e) {
+		data = {
+			title: 'Default title',
+			body: 'Default message',
+			icon: '/default-icon.png',
+		};
+	}
+
+	event.waitUntil(
+		self.registration.showNotification(data.title, {
+			body: data.body,
+			icon: data.icon,
+      actions: data.actions,
+		})
+	);
+});
+
+// Add PUSH notification click handler
+self.addEventListener('notificationclick', function(event) {
+  console.log('Notification clicked', event);
+
+	// Close the notification.
+	event.notification.close();
+});
