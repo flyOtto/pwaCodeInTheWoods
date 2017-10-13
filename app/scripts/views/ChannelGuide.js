@@ -105,7 +105,7 @@ export default class ChannelGuide {
     });
 
     // TODO Send the PUSH notification to the server
-    const response = await fetch('/api/subscriptions/', {
+    await fetch('/api/subscriptions/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -115,7 +115,6 @@ export default class ChannelGuide {
         program: program,
       }),
     });
-    const json = await response.json();
 
     // Prevent execution of the other eventhandlers
     event.preventDefault ? event.preventDefault() : event.returnValue = false;
