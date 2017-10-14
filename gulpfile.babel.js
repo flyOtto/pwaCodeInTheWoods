@@ -256,8 +256,8 @@ gulp.task('pagespeed', (cb) =>
 // Copy the workbox script and the prefetching module
 gulp.task('copy-workbox', () => {
   return gulp.src([
-    'node_modules/workbox-sw/build/importScripts/workbox-sw.prod.v2.0.3.js',
-    'node_modules/workbox-runtime-caching/build/importScripts/workbox-runtime-caching.prod.v2.0.3.js',
+    'node_modules/workbox-sw/build/importScripts/workbox-sw.prod.*.js',
+    'node_modules/workbox-runtime-caching/build/importScripts/workbox-runtime-caching.prod.*.js',
   ])
   .pipe($.if(/workbox-sw/, $.rename('workbox.js')))
   .pipe($.if(/workbox-runtime-caching/, $.rename('workbox-runtime-caching.js')))
