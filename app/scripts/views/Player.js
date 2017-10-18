@@ -1,4 +1,5 @@
-import {bind} from 'hyperHTML';
+import {bind, wire} from 'hyperhtml';
+// import Hls from 'hls.js'
 
 /**
  * The HyperHTML view displaying the video player and channel details.
@@ -11,7 +12,7 @@ export default class Player {
    * @param {String} [url=null] - The URL to use
    * @param {Object} [program=null] - The program to render
    */
-  constructor(element, url=null, program=null) {
+  constructor(element, url = null, program = null) {
     this.element = element;
     this.url = url;
     this.program = program;
@@ -24,20 +25,35 @@ export default class Player {
    */
   render() {
     console.log(`Render Player with url '${this.url}'`);
+
+    const messages = [];
     const start = this.program.startTime;
-    const time = `${ start.getHours() }:${ String(start.getMinutes()).padStart(2, '0') }`;
+    const time = `${start.getHours()}:${String(start.getMinutes()).padStart(2, '0')}`;
+    const video = wire()`<video style="width: 100%;" ></video>`;
+    if (Hls.isSupported()) {
+      const hls = new Hls();
+      hls.loadSource(this.url);
+      hls.attachMedia(video);
+      hls.on(Hls.Events.MANIFEST_PARSED,
+        function() {
+        console.log('Try to play video');
+          video.play();
+          console.log('should be playing');
+      });
+    }
+
 
     return bind(this.element)`
-      <video autoplay controls width="100%">
-        <source src="${this.url}" type="application/x-mpegURL">
-        Selaimesi ei tue videosoittoa.
-      </video>
+      ${ video }
+      <ul style="max-height:"> 
+      ${ messages.map((message) => `<li>${message}</li>`)}
+     </ul>
       <div class="mdc-card">
         <section class="mdc-card__primary">
-          <h2 class="mdc-card__subtitle">${ time }</h2>
-          <h1 class="mdc-card__title mdc-card__title--large">${ this.program.title }</h1>
+          <h2 class="mdc-card__subtitle">${ time}</h2>
+          <h1 class="mdc-card__title mdc-card__title--large">${ this.program.title}</h1>
         </section>
-        <section class="mdc-card__supporting-text">${ this.program.description }</section>
+        <section class="mdc-card__supporting-text">${ this.program.description}</section>
       </div>
     `;
   }

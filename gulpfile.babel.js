@@ -134,8 +134,8 @@ gulp.task('scripts', () => {
       ],
     },
     plugins: [
-      new webpack.optimize.AggressiveMergingPlugin(),
-      new BabelMinifyPlugin({}, {}),
+      // new webpack.optimize.AggressiveMergingPlugin(),
+      // new BabelMinifyPlugin({}, {}),
     ],
   };
 

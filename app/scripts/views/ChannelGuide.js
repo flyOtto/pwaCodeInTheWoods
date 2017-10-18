@@ -1,4 +1,4 @@
-import {bind, wire} from 'hyperHTML';
+import {bind, wire} from 'hyperhtml';
 import config from '../../../config.json';
 
 /**
@@ -129,8 +129,9 @@ export default class ChannelGuide {
   render() {
     console.log(`Render channel guide, ${this.programs.length} elements`);
 
+    const watchablePrograms = this.programs.filter((program) => !!program.playbackUrl);
     return bind(this.element)`
-      ${ this.programs.map((p) => wire()`
+      ${ watchablePrograms.map((p) => wire()`
         <div class="mdc-card">
           <section class="mdc-card__primary">
             <h2 class="mdc-card__subtitle">
@@ -144,8 +145,7 @@ export default class ChannelGuide {
           </section>
         </div>
       `)}
-    `;
-
+  `;
     // Attach the scroller - this is done after templating to permit the right behaviour
     // const tabBarScroller =
     //  new MDCTabBarScroller(document.querySelector('.mdc-tab-bar-scroller'));

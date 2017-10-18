@@ -20,8 +20,8 @@ async function fetchCurrentPrograms(services = []) {
   params.set('app_id', config.appId);
   params.set('app_key', config.appKey);
   params.set('service', services.join(','));
-  params.set('start', '-1');
-  params.set('end', '10');
+  params.set('start', '0');
+  params.set('end', '0');
 
   // Fix the jsonp callback function name for service worker compatibility
   const options = {jsonpCallbackFunction: 'jsonp_options'};
